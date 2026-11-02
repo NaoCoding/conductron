@@ -8,7 +8,6 @@ const host = ref<HTMLDivElement>()
 const error = ref('')
 let osmd: OpenSheetMusicDisplay | undefined
 let scoreKey = ''
-let lastBeat = ''
 
 async function render(): Promise<void> {
   if (!host.value || !props.xml) return
@@ -23,7 +22,6 @@ async function render(): Promise<void> {
     osmd.cursor.show()
     osmd.cursor.reset()
     scoreKey = props.xml
-    lastBeat = ''
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Could not render this score.'
   }
@@ -31,31 +29,32 @@ async function render(): Promise<void> {
 
 onMounted(() => { void render() })
 watch(() => props.xml, async () => { await render() })
-watch(() => [props.position.measureIndex, props.position.beatIndex, props.position.beatProgress, props.playing], ([measure, beat, progress, playing]) => {
+watch(() => [props.position.quarterPosition, props.playing], ([quarterPosition, playing]) => {
   if (!osmd || scoreKey !== props.xml) return
-  if (!playing && Number(measure) === 0 && Number(beat) === 0 && Number(progress) === 0) {
+  if (!playing && Number(quarterPosition) === 0) {
     osmd.cursor.reset()
-    lastBeat = ''
     return
   }
-  const key = `${measure}:${beat}`
   if (!playing) return
-  if (key !== lastBeat) {
-    const target = Number(measure) * props.position.timeSignature.numerator + Number(beat)
-    if (target === 0) osmd.cursor.reset()
-    else {
-      // OSMD's cursor advances by graphical voice entries; progress updates are intentionally throttled here.
-      const entries = osmd.cursor.iterator
-      const guard = 10000
-      let count = 0
-      while (!entries.EndReached && count++ < guard) {
-        const timestamp = entries.currentTimeStamp?.RealValue ?? 0
-        if (timestamp >= props.position.quarterPosition - Number(progress) * 0.001) break
-        osmd.cursor.next()
-      }
+
+  // The score timeline is measured in quarter notes; OSMD's Fraction timestamps
+  // are measured in whole notes. Keep the cursor on the latest entry that has
+  // started, rather than the next entry (which would move ahead during long notes).
+  const targetTimestamp = Number(quarterPosition) / 4
+  const entries = osmd.cursor.iterator
+  const guard = 10000
+  let count = 0
+  let reachedEnd = false
+  while (!entries.EndReached && count++ < guard) {
+    const timestamp = entries.currentTimeStamp?.RealValue ?? 0
+    if (timestamp > targetTimestamp) {
+      osmd.cursor.previous()
+      break
     }
-    lastBeat = key
+    osmd.cursor.next()
+    reachedEnd = entries.EndReached
   }
+  if (reachedEnd) osmd.cursor.previous()
 }, { flush: 'post' })
 
 onBeforeUnmount(() => { osmd?.clear(); osmd = undefined })
