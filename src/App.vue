@@ -16,7 +16,6 @@ let engine: PlaybackEngine | undefined
 let frame = 0
 
 const playing = computed(() => playbackState.value === 'playing')
-const beatLabel = computed(() => `${position.value.beatIndex + 1} / ${position.value.timeSignature.numerator}`)
 const meterLabel = computed(() => `${position.value.timeSignature.numerator}/${position.value.timeSignature.denominator}`)
 const elapsedLabel = computed(() => formatTime(position.value.elapsedSeconds))
 const durationLabel = computed(() => formatTime(timeline.value?.durationSeconds ?? 0))
@@ -124,13 +123,6 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
           :position="position"
           :playing="playing"
         />
-        <div class="beat-readout">
-          <div class="beat-number">
-            {{ beatLabel.split(' / ')[0] }}<span> / {{ position.timeSignature.numerator }}</span>
-          </div><div class="beat-caption">
-            MEASURE {{ position.measureNumber }}
-          </div>
-        </div>
         <div class="transport">
           <button
             class="transport-reset"
@@ -163,7 +155,7 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
           {{ message }}
         </p>
         <div class="source-note">
-          Conductor follows the score tempo
+          Gestures follow the score tempo
         </div>
       </aside>
     </section>
