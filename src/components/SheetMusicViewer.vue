@@ -8,6 +8,51 @@ const host = ref<HTMLDivElement>()
 const error = ref('')
 let osmd: OpenSheetMusicDisplay | undefined
 let scoreKey = ''
+let lastTargetTimestamp = 0
+let nextCursorTimestamp: number | undefined
+
+function resetScoreCursor(): void {
+  osmd?.cursor.reset()
+  lastTargetTimestamp = 0
+  nextCursorTimestamp = undefined
+}
+
+function syncScoreCursor(quarterPosition: number): void {
+  if (!osmd) return
+  // The app's timeline is in quarter notes; OSMD timestamps are whole-note fractions.
+  const targetTimestamp = Math.max(0, quarterPosition) / 4
+  const epsilon = 1e-7
+
+  // Playback can restart from the end of a score. Rewind the iterator before seeking.
+  if (targetTimestamp + epsilon < lastTargetTimestamp) resetScoreCursor()
+
+  // Avoid moving the DOM cursor every animation frame between note onsets.
+  if (nextCursorTimestamp !== undefined && targetTimestamp + epsilon < nextCursorTimestamp) {
+    lastTargetTimestamp = targetTimestamp
+    return
+  }
+
+  const iterator = osmd.cursor.iterator
+  let nextTimestamp: number | undefined
+  let steps = 0
+  while (!iterator.EndReached && steps++ < 10000) {
+    const timestamp = iterator.currentTimeStamp?.RealValue ?? 0
+    if (timestamp > targetTimestamp + epsilon) {
+      nextTimestamp = timestamp
+      osmd.cursor.previous()
+      break
+    }
+    osmd.cursor.next()
+  }
+
+  if (iterator.EndReached) {
+    osmd.cursor.previous()
+    nextCursorTimestamp = Number.POSITIVE_INFINITY
+  } else {
+    nextCursorTimestamp = nextTimestamp
+  }
+  lastTargetTimestamp = targetTimestamp
+}
 
 async function render(): Promise<void> {
   if (!host.value || !props.xml) return
@@ -20,7 +65,7 @@ async function render(): Promise<void> {
     await osmd.load(props.xml)
     osmd.render()
     osmd.cursor.show()
-    osmd.cursor.reset()
+    resetScoreCursor()
     scoreKey = props.xml
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Could not render this score.'
@@ -32,29 +77,11 @@ watch(() => props.xml, async () => { await render() })
 watch(() => [props.position.quarterPosition, props.playing], ([quarterPosition, playing]) => {
   if (!osmd || scoreKey !== props.xml) return
   if (!playing && Number(quarterPosition) === 0) {
-    osmd.cursor.reset()
+    resetScoreCursor()
     return
   }
   if (!playing) return
-
-  // The score timeline is measured in quarter notes; OSMD's Fraction timestamps
-  // are measured in whole notes. Keep the cursor on the latest entry that has
-  // started, rather than the next entry (which would move ahead during long notes).
-  const targetTimestamp = Number(quarterPosition) / 4
-  const entries = osmd.cursor.iterator
-  const guard = 10000
-  let count = 0
-  let reachedEnd = false
-  while (!entries.EndReached && count++ < guard) {
-    const timestamp = entries.currentTimeStamp?.RealValue ?? 0
-    if (timestamp > targetTimestamp) {
-      osmd.cursor.previous()
-      break
-    }
-    osmd.cursor.next()
-    reachedEnd = entries.EndReached
-  }
-  if (reachedEnd) osmd.cursor.previous()
+  syncScoreCursor(Number(quarterPosition))
 }, { flush: 'post' })
 
 onBeforeUnmount(() => { osmd?.clear(); osmd = undefined })

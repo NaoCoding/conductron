@@ -97,13 +97,13 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
 
     <section class="studio-intro" aria-label="Practice studio introduction">
       <div class="intro-copy">
-        <div class="eyebrow"><span class="eyebrow-index">01</span> SCORE-LED PRACTICE</div>
-        <h1>A little closer,<br><em>every measure.</em></h1>
-        <p>Read the music. See the gesture. Find your rhythm.</p>
+        <div class="eyebrow"><span class="eyebrow-index">01</span> VIRTUAL CONDUCTOR PRACTICE</div>
+        <h1>Conduct along with<br><em>your score.</em></h1>
+        <p>A beat-by-beat guide for every measure.</p>
       </div>
       <div class="intro-mark" aria-hidden="true">
         <svg viewBox="0 0 120 64" fill="none"><path d="M2 34h16l8-22 14 43 12-34 10 20h12l7-13 8 10h29" /></svg>
-        <span>LISTEN · WATCH · CONDUCT</span>
+        <span>SCORE · TEMPO · GESTURE</span>
       </div>
     </section>
 
