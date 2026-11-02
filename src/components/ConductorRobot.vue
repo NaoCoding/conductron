@@ -93,7 +93,7 @@ onMounted(() => {
     camera = new THREE.OrthographicCamera(-2.1, 2.1, 2.1, -2.1, 0.1, 30)
     camera.position.set(0, 1.92, 8)
     camera.lookAt(0, 1.92, 0)
-    scene.add(new THREE.HemisphereLight(0xe8f4ee, 0x27352e, 2))
+    scene.add(new THREE.HemisphereLight(0xfff4e9, 0x493a35, 2))
     const key = new THREE.DirectionalLight(0xfff1d9, 3.5)
     key.position.set(-3, 5, 6); key.castShadow = true
     key.shadow.mapSize.set(1024, 1024)
@@ -101,13 +101,13 @@ onMounted(() => {
     key.shadow.camera.top = 5; key.shadow.camera.bottom = -2
     key.shadow.normalBias = 0.025
     scene.add(key)
-    const rim = new THREE.DirectionalLight(0xc9f36b, 2.2); rim.position.set(3, 4, -3); scene.add(rim)
-    const fill = new THREE.DirectionalLight(0xc9e5ff, 1.2); fill.position.set(3, 2, 4); scene.add(fill)
+    const rim = new THREE.DirectionalLight(0xc64d36, 2.2); rim.position.set(3, 4, -3); scene.add(rim)
+    const fill = new THREE.DirectionalLight(0xffdfc6, 1.2); fill.position.set(3, 2, 4); scene.add(fill)
     const conductor = createConductor(); scene.add(conductor.root)
-    const podiumMaterial = new THREE.MeshStandardMaterial({ color: '#2c4035', metalness: 0.35, roughness: 0.6 })
+    const podiumMaterial = new THREE.MeshStandardMaterial({ color: '#6a5145', metalness: 0.35, roughness: 0.6 })
     const podium = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.95, 0.09, 64), podiumMaterial)
     podium.position.y = 0.015; podium.receiveShadow = true; scene.add(podium)
-    const edge = new THREE.Mesh(new THREE.TorusGeometry(0.90, 0.008, 8, 80), new THREE.MeshBasicMaterial({ color: '#c9f36b', transparent: true, opacity: 0.45 }))
+    const edge = new THREE.Mesh(new THREE.TorusGeometry(0.90, 0.008, 8, 80), new THREE.MeshBasicMaterial({ color: '#e69b62', transparent: true, opacity: 0.55 }))
     edge.rotation.x = Math.PI / 2; edge.position.y = 0.06; scene.add(edge)
     const resize = () => {
       if (!renderer || !camera || !host.value) return

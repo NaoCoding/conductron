@@ -73,26 +73,50 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
     <header class="topbar">
       <a
         class="brand"
-        href="#"
+        href="/"
         aria-label="Conductron home"
-      ><span class="brand-mark">C</span><span>conductron</span></a>
-      <label class="upload-button"> <span>＋</span> Open MusicXML <input
+      >
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 5v10.5a2.5 2.5 0 1 1-2-2.45V7l12-2v9.5a2.5 2.5 0 1 1-2-2.45V3L7 5Z" /></svg>
+        </span>
+        <span class="brand-name">conductron</span>
+      </a>
+      <div class="topbar-tools">
+        <span class="workspace-mode"><span class="mode-dot" />Music practice</span>
+        <label class="upload-button">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5V19h14v-4.5" /></svg>
+          <span>Open score</span>
+          <input
         type="file"
         accept=".xml,.musicxml,application/xml,text/xml"
         @change="upload"
-      > </label>
+          >
+        </label>
+      </div>
     </header>
 
-    <section class="workspace">
+    <section class="studio-intro" aria-label="Practice studio introduction">
+      <div class="intro-copy">
+        <div class="eyebrow"><span class="eyebrow-index">01</span> SCORE-LED PRACTICE</div>
+        <h1>A little closer,<br><em>every measure.</em></h1>
+        <p>Read the music. See the gesture. Find your rhythm.</p>
+      </div>
+      <div class="intro-mark" aria-hidden="true">
+        <svg viewBox="0 0 120 64" fill="none"><path d="M2 34h16l8-22 14 43 12-34 10 20h12l7-13 8 10h29" /></svg>
+        <span>LISTEN · WATCH · CONDUCT</span>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Conducting workspace">
       <div class="score-column">
         <div class="score-heading">
-          <div>
-            <div class="eyebrow">
-              NOW CONDUCTING
-            </div><h1>{{ title }}</h1>
+          <div class="score-title-group">
+            <div class="eyebrow"><span class="eyebrow-line" /> NOW REHEARSING</div>
+            <h2>{{ title }}</h2>
           </div>
-          <div class="score-meta">
-            <span>{{ meterLabel }}</span><span class="meta-dot">·</span><span>{{ Math.round(position.bpm) }} BPM</span>
+          <div class="score-meta" aria-label="Score tempo and meter">
+            <span class="meta-chip"><span class="meta-symbol">♩</span>{{ Math.round(position.bpm) }} BPM</span>
+            <span class="meta-chip">{{ meterLabel }} <span class="meta-label">METER</span></span>
           </div>
         </div>
         <SheetMusicViewer
@@ -105,10 +129,20 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
           v-else
           class="empty-score"
         >
-          Open a MusicXML score to begin.
+          <div class="empty-score-content">
+            <span class="empty-score-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M8 5h11l6 6v16H8V5Z" /><path d="M19 5v7h6M12 17h9M12 21h9" /></svg>
+            </span>
+            <strong>Your score will appear here</strong>
+            <span>Open a MusicXML file to start a rehearsal.</span>
+            <label class="empty-upload">Choose a score
+              <input type="file" accept=".xml,.musicxml,application/xml,text/xml" @change="upload">
+            </label>
+          </div>
         </div>
         <div class="score-footer">
-          <span>{{ timeline?.measures.length ?? 0 }} measures</span><span>{{ elapsedLabel }} <i>/</i> {{ durationLabel }}</span>
+          <span class="measure-count"><span class="tiny-bars" aria-hidden="true"><i /><i /><i /><i /></span>{{ timeline?.measures.length ?? 0 }} measures</span>
+          <span class="score-time"><span>{{ elapsedLabel }}</span><span class="time-divider">/</span><span>{{ durationLabel }}</span></span>
         </div>
       </div>
 
@@ -117,7 +151,11 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
           <span
             class="live-dot"
             :class="{ active: playing }"
-          />{{ playing ? 'CONDUCTING' : 'READY' }}
+          />{{ playing ? 'IN SESSION' : 'READY WHEN YOU ARE' }}
+        </div>
+        <div class="conductor-heading">
+          <div><span class="panel-kicker">YOUR CONDUCTOR</span><h2>Keep the beat</h2></div>
+          <span class="session-meter">{{ meterLabel }}</span>
         </div>
         <ConductorRobot
           :position="position"
@@ -130,7 +168,7 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
             title="Reset"
             @click="reset"
           >
-            ↺
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4.5 11a7.5 7.5 0 1 1 .8 4.5M4.5 11V5.5M4.5 11H10" /></svg>
           </button>
           <button
             class="transport-play"
@@ -140,10 +178,10 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
             <span
               v-if="playing"
               class="pause-icon"
-            >Ⅱ</span><span
-              v-else
-              class="play-icon"
-            >▶</span>
+            ><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M9 6v12M15 6v12" /></svg></span><span
+            v-else
+            class="play-icon"
+          ><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m9 5 10 7-10 7V5Z" /></svg></span>
           </button>
           <span class="transport-hint">{{ playing ? 'PAUSE' : playbackState === 'paused' ? 'RESUME' : 'START' }}</span>
         </div>
@@ -160,7 +198,7 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
       </aside>
     </section>
     <footer class="page-footer">
-      <span>CONDUCTRON <span class="footer-separator">/</span> PRACTICE MODE</span><span>Score-led timing · Microphone analysis planned</span>
+      <span class="footer-brand">CONDUCTRON <span class="footer-separator">/</span> PRACTICE MODE</span><span>Score-led timing <i /> A little more in time, every day.</span>
     </footer>
   </main>
 </template>

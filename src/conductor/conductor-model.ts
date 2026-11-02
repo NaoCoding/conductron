@@ -52,13 +52,13 @@ export function solveArm(shoulder: THREE.Vector3, wrist: THREE.Vector3, side: nu
 
 export function createConductor(): { root: THREE.Group; head: THREE.Group; update: (pose: GesturePose, pulse: number, active: boolean) => THREE.Vector3 } {
   const root = new THREE.Group()
-  const suit = material('#253b38', 0.22, 0.64)
+  const suit = material('#493a35', 0.22, 0.64)
   const skin = material('#e4dfd2', 0.18, 0.37)
   const white = material('#f9f5e9', 0.04, 0.5)
-  const joint = material('#61746e', 0.65, 0.32)
-  const dark = material('#132320', 0.15, 0.45)
-  const green = material('#c9f36b', 0.3, 0.3)
-  const eyes = material('#142b28', 0.35, 0.2)
+  const joint = material('#81746a', 0.65, 0.32)
+  const dark = material('#342825', 0.15, 0.45)
+  const green = material('#c64d36', 0.3, 0.3)
+  const eyes = material('#332522', 0.35, 0.2)
 
   // Tapered jacket, separate lapels, shirt front, bow tie and articulated waist.
   const torso = mesh(new THREE.CylinderGeometry(0.51, 0.33, 0.94, 48), suit, root, [0, 2.2, 0], [1, 1, 0.61])
@@ -71,7 +71,7 @@ export function createConductor(): { root: THREE.Group; head: THREE.Group; updat
   for (const side of [-1, 1]) {
     const lapel = new THREE.Shape()
     lapel.moveTo(side * 0.22, 2.67); lapel.lineTo(side * 0.38, 2.46); lapel.lineTo(side * 0.23, 2.35); lapel.lineTo(side * 0.29, 2.29); lapel.lineTo(side * 0.07, 1.94); lapel.closePath()
-    mesh(new THREE.ShapeGeometry(lapel), new THREE.MeshStandardMaterial({ color: '#4a6259', side: THREE.DoubleSide, roughness: 0.4 }), root, [0, 0, 0.335])
+    mesh(new THREE.ShapeGeometry(lapel), new THREE.MeshStandardMaterial({ color: '#72584c', side: THREE.DoubleSide, roughness: 0.4 }), root, [0, 0, 0.335])
     const tie = mesh(new THREE.ConeGeometry(0.095, 0.15, 3), dark, root, [side * 0.075, 2.58, 0.36], [1, 1, 0.45])
     tie.rotation.z = side * Math.PI / 2
     const pocket = mesh(new THREE.BoxGeometry(0.12, 0.025, 0.025), green, root, [side === 1 ? 0.31 : -0.31, 2.37, 0.30])
@@ -138,7 +138,7 @@ export function createConductor(): { root: THREE.Group; head: THREE.Group; updat
   const baton = new THREE.Group(); root.add(baton)
   mesh(new THREE.CylinderGeometry(0.009, 0.018, BATON_LENGTH, 16), white, baton, [0, BATON_LENGTH / 2, 0])
   mesh(new THREE.CapsuleGeometry(0.027, 0.10, 6, 16), dark, baton, [0, 0.045, 0])
-  const tipMaterial = new THREE.MeshStandardMaterial({ color: '#e6ffb2', emissive: '#c9f36b', emissiveIntensity: 1.1, roughness: 0.2 })
+  const tipMaterial = new THREE.MeshStandardMaterial({ color: '#ffe1be', emissive: '#c64d36', emissiveIntensity: 1.1, roughness: 0.2 })
   mesh(new THREE.SphereGeometry(0.027, 16, 12), tipMaterial, baton, [0, BATON_LENGTH, 0])
 
   function moveArm(arm: Arm, wrist: THREE.Vector3, handDirection: THREE.Vector3): THREE.Vector3 {
