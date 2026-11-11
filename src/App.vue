@@ -6,6 +6,7 @@ import { PlaybackEngine, type PlaybackState } from './conductor/playback-engine'
 import { parseMusicXML } from './music/musicxml-parser'
 import type { MusicalPosition, MusicalTimeline } from './music/types'
 
+const baseUrl = import.meta.env.BASE_URL
 const xml = ref('')
 const title = ref('Loading demo…')
 const timeline = ref<MusicalTimeline>()
@@ -62,7 +63,7 @@ function tick(): void {
 }
 
 onMounted(async () => {
-  try { const response = await fetch(`${import.meta.env.BASE_URL}examples/waltz.musicxml`); if (!response.ok) throw new Error(); loadScore(await response.text(), 'Little Robot Waltz') }
+  try { const response = await fetch(`${baseUrl}examples/waltz.musicxml`); if (!response.ok) throw new Error(); loadScore(await response.text(), 'Little Robot Waltz') }
   catch { title.value = 'Choose a MusicXML score'; message.value = 'The bundled demo could not be loaded.' }
 })
 onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
@@ -73,7 +74,7 @@ onBeforeUnmount(() => { cancelAnimationFrame(frame); engine?.dispose() })
     <header class="topbar">
       <a
         class="brand"
-        :href="import.meta.env.BASE_URL"
+        :href="baseUrl"
         aria-label="Conductron home"
       >
         <span class="brand-mark" aria-hidden="true">
